@@ -17,7 +17,7 @@ then
   echo "Found existing container: $NAME ($CONTAINER) running on port $PORT"
 
   # Create data volume if absent
-  VOLUME=$(docker inspect -f '{{ range .Mounts }}{{ .Name }}:{{ .Destination }}{{end}}' "$CONTAINER" | grep -E ':/nexus-data$' | cut -d':' -f1)
+  VOLUME=$(docker inspect -f '{{ range .Mounts }}{{ .Name }}:{{ .Destination }}{{printf "\n"}}{{end}}' "$CONTAINER" | grep -E ':/nexus-data$' | cut -d':' -f1)
   if [ -z "$VOLUME" ]
   then
     VOLUME="$NAME-data"
@@ -31,4 +31,4 @@ then
 fi
 
 docker pull "sonatype/nexus3"
-docker run -d -p "${PORT:-1234}":8081 --name "${NAME:-nexus}" -v "${VOLUME:-nexus-data}":/nexus-data --restart=unless-stopped "sonatype/nexus3"
+docker run -d -p "${PORT:-1234}":8081 --name "${NAME:-nexus}" -v "${VOLUME:-nexus-data}":/nexus-data -v "$PWD/nexus.properties":/nexus-data/etc/nexus.properties --restart=unless-stopped "sonatype/nexus3"
